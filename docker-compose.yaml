@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  raffle_db:
+    image: postgres:15
+    container_name: web_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: raffle
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - epr-psqlData:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: raffle_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: raffle_db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: secret
+      DB_NAME: raffle
+    depends_on:
+      - raffle_db
+
+volumes:
+  epr-psqlData:

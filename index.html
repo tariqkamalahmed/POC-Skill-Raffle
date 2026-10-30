@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uganda Skill Raffle Regulatory PoC</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 30px auto; padding: 20px; background: #f0f2f5; color: #333; }
+    .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .hidden { display: none !important; }
+    button { background: #007bff; color: white; border: none; padding: 10px 18px; font-size: 15px; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    button.secondary { background: #6c757d; }
+    input, select { padding: 8px; font-size: 14px; width: 100%; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .nav-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav-bar button { background: #495057; font-size: 13px; padding: 6px 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #dee2e6; padding: 8px; text-align: left; }
+    th { background: #f8f9fa; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+  </style>
+</head>
+<body>
+
+  <div class="nav-bar">
+    <button onclick="showScreen('home')">1. Home</button>
+    <button onclick="showScreen('details')">2. Competition Details</button>
+    <button onclick="showScreen('verify')">10. Ticket Lookup</button>
+    <button onclick="showScreen('admin')">11-14. Operator Dashboard</button>
+    <button onclick="showScreen('regulator')">16-18. Regulator Auditor View</button>
+  </div>
+
+  <!-- SCREEN 1: HOME PAGE -->
+  <div id="screen-home" class="card">
+    <h2>Featured Competition</h2>
+    <hr>
+    <h3>Win a Toyota Land Cruiser</h3>
+    <p><strong>Ticket price:</strong> UGX 10,000</p>
+    <p><strong>Total tickets:</strong> 1,000</p>
+    <p><strong>Closing date:</strong> 7 days from today</p>
+    
+    <div style="text-align: center; margin-bottom: 15px;">
+      <img src="toyota-landcruiserv8-121121231361961600x1060.jpg" alt="Toyota Land Cruiser V8" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #ddd;">
+    </div>
+
+    <button onclick="showScreen('details')">Enter Competition</button>
+  </div>
+
+  <div id="screen-details" class="card hidden">
+    <h2>Competition Details & Eligibility</h2>
+    <hr>
+    <p><strong>Full Prize Description:</strong> Brand new Toyota Land Cruiser 2026 model, fully registered and insured in Uganda.</p>
+    <p><strong>Ticket Price:</strong> UGX 10,000 | <strong>Max Tickets:</strong> 1,000 | <strong>No cash alternative available.</strong></p>
+    <p><strong>Basic Rules:</strong> Participants must be 18 years or older and resident in Uganda. Skill question must be answered correctly.</p>
+    
+    <label>
+      <input type="checkbox" id="eligibility-check" style="width: auto; margin-right: 8px;">
+      I confirm I am 18+ years of age, meet eligibility requirements, and accept terms.
+    </label>
+    <br><br>
+    <button onclick="proceedToSkill()">Continue to Skill Question</button>
+    <button class="secondary" onclick="showScreen('home')">Back</button>
+  </div>
+
+  <div id="screen-skill" class="card hidden">
+    <h2>Skill Assessment Test</h2>
+    <hr>
+    <p>To comply with regulatory standards for skill-based competitions, please answer correctly to proceed:</p>
+    <label><strong>What is the capital city of Uganda?</strong></label>
+    <input type="text" id="skill-answer" placeholder="Enter capital city...">
+    <div id="skill-error" style="color: red; font-size: 13px; margin-bottom: 10px;"></div>
+    <button onclick="validateSkill()">Submit Answer</button>
+  </div>
+
+  <div id="screen-purchase" class="card hidden">
+    <h2>Select Tickets & Customer Details</h2>
+    <hr>
+    <label>Select Ticket Quantity (Max 999, UGX 10,000 each):</label>
+    <input type="number" id="ticket-qty" value="1" min="1" max="999">
+
+    <label>Full Name:</label>
+    <input type="text" id="cust-name" value="Kigozi Ronald">
+
+    <label>Mobile Number (MTN / Airtel):</label>
+    <input type="text" id="cust-phone" value="+256 772 123456">
+
+    <label>Email Address:</label>
+    <input type="text" id="cust-email" value="ronald.k@gmail.com">
+
+    <label>National ID / NIN Verification:</label>
+    <input type="text" id="cust-nin" value="CM98012102ABC">
+
+    <button onclick="proceedToPayment()">Proceed to Payment</button>
+  </div>
+
+  <div id="screen-payment" class="card hidden">
+    <h2>Payment Gateway Sandbox (Uganda)</h2>
+    <hr>
+    <p>Select payment provider simulation:</p>
+    <select id="pay-provider">
+      <option value="MTN">MTN Mobile Money</option>
+      <option value="AIRTEL">Airtel Money</option>
+      <option value="VISA">Visa / Mastercard</option>
+    </select>
+
+    <label>Simulate Transaction Outcome:</label>
+    <select id="pay-outcome">
+      <option value="SUCCESS">Success (Authorized & Paid)</option>
+      <option value="FAILED">Failed (Insufficient Funds / Timeout)</option>
+    </select>
+
+    <button onclick="executePayment()">Authorize Payment</button>
+  </div>
+
+  <div id="screen-success" class="card hidden">
+    <div class="badge badge-success">Payment Confirmed</div>
+    <h2>Entry Successful</h2>
+    <hr>
+    <p><strong>Customer:</strong> <span id="res-name"></span></p>
+    <p><strong>Amount Paid:</strong> UGX <span id="res-amount"></span></p>
+    <p><strong>Payment Reference:</strong> <code id="res-pref"></code></p>
+    <p><strong>Date / Time:</strong> <span id="res-time"></span></p>
+    <p><strong>Competition:</strong> Win a Toyota Land Cruiser</p>
+    <p><strong>Assigned Tickets:</strong> <code id="res-tickets" style="font-size: 16px; color: #007bff;"></code></p>
+    <button onclick="showScreen('home')">Return Home</button>
+  </div>
+
+  <div id="screen-failed" class="card hidden">
+    <div class="badge badge-danger">Payment Failed</div>
+    <h2>Transaction Declined</h2>
+    <hr>
+    <p>Your payment attempt could not be authorized by the mobile money network or card issuer.</p>
+    <p>No valid tickets have been issued. The failed transaction attempt has been securely logged to the audit trail.</p>
+    <button onclick="showScreen('purchase')">Try Again</button>
+  </div>
+
+  <div id="screen-verify" class="card hidden">
+    <h2>Customer Ticket Verification Portal</h2>
+    <hr>
+    <p>Enter your Session ID or Payment Reference number to check status:</p>
+    <input type="text" id="verify-input" placeholder="e.g. SESS-XYZ or PAY-XYZ">
+    <button onclick="checkTicketStatus()">Verify Ticket</button>
+
+    <div id="verify-result" class="hidden" style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 6px;"></div>
+  </div>
+
+  <div id="screen-admin" class="card hidden">
+    <h2>Operator & Licensing Board Control Panel</h2>
+    <hr>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+      <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">Total Tickets: <strong id="adm-total">1000</strong></div>
+      <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">Tickets Sold: <strong id="adm-sold">0</strong></div>
+      <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">Remaining: <strong id="adm-rem">1000</strong></div>
+      <div style="background: #f8f9fa; padding: 10px; border-radius: 4px;">Status: <strong id="adm-status">ACTIVE</strong></div>
+    </div>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+      <button onclick="adminCloseComp()" style="background: #dc3545;">12. Close Entries</button>
+      <button onclick="adminLockEntries()" style="background: #ffc107; color: black;">13. Lock Entry List</button>
+      <button onclick="adminRunDraw()" style="background: #28a745;">14. Run Random Draw</button>
+    </div>
+
+    <div id="draw-output" class="hidden" style="background: #d4edda; padding: 15px; border-radius: 6px; color: #155724;"></div>
+  </div>
+
+  <div id="screen-regulator" class="card hidden">
+    <h2>Regulator Auditor View (Uganda Gaming Board)</h2>
+    <hr>
+    <p>Complete immutable record of system actions, provably fair seeds, and logs.</p>
+    <button onclick="loadAuditLogs()" style="margin-bottom: 10px;">Refresh Audit Logs</button>
+    <table>
+      <thead>
+        <tr><th>Time</th><th>Action & Audit Trail Description</th></tr>
+      </thead>
+      <tbody id="audit-table-body">
+        <tr><td colspan="2">Loading logs...</td></tr>
+      </tbody>
+    </table>
+    <br>
+    <button onclick="alert('Exporting cryptographically signed CSV audit report for regulatory filing.')">Export Official Report (CSV)</button>
+  </div>
+
+  <script>
+    function showScreen(name) {
+      ['home', 'details', 'skill', 'purchase', 'payment', 'success', 'failed', 'verify', 'admin', 'regulator'].forEach(s => {
+        document.getElementById('screen-' + s).classList.add('hidden');
+      });
+      document.getElementById('screen-' + name).classList.remove('hidden');
+      if (name === 'admin') loadAdminStatus();
+      if (name === 'regulator') loadAuditLogs();
+    }
+
+    function proceedToSkill() {
+      if (!document.getElementById('eligibility-check').checked) {
+        alert('You must confirm eligibility and accept terms.');
+        return;
+      }
+      showScreen('skill');
+    }
+
+    function validateSkill() {
+      const ans = document.getElementById('skill-answer').value.trim().toLowerCase();
+      if (ans === 'kampala') {
+        document.getElementById('skill-error').innerText = '';
+        showScreen('purchase');
+      } else {
+        document.getElementById('skill-error').innerText = 'Incorrect answer. You cannot enter the raffle.';
+      }
+    }
+
+    function proceedToPayment() {
+      const qty = parseInt(document.getElementById('ticket-qty').value);
+      if (isNaN(qty) || qty < 1 || qty > 999) {
+        alert('Please enter a valid ticket quantity between 1 and 999.');
+        return;
+      }
+      showScreen('payment');
+    }
+
+    async function executePayment() {
+      const qty = parseInt(document.getElementById('ticket-qty').value);
+      const name = document.getElementById('cust-name').value;
+      const phone = document.getElementById('cust-phone').value;
+      const email = document.getElementById('cust-email').value;
+      const status = document.getElementById('pay-outcome').value;
+      const clientSeed = 'CLI-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      const resp = await fetch('http://localhost:8080/api/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          competition_id: 1,
+          ticket_qty: qty,
+          client_seed: clientSeed,
+          customer_name: name,
+          mobile_number: phone,
+          email: email,
+          payment_method: document.getElementById('pay-provider').value,
+          payment_status: status
+        })
+      });
+
+      const data = await resp.json();
+      if (status === 'SUCCESS' && data.success) {
+        document.getElementById('res-name').innerText = name;
+        document.getElementById('res-amount').innerText = (qty * 10000).toLocaleString();
+        document.getElementById('res-pref').innerText = data.payment_ref;
+        document.getElementById('res-time').innerText = data.timestamp;
+        document.getElementById('res-tickets').innerText = data.ticket_range;
+        showScreen('success');
+      } else {
+        showScreen('failed');
+      }
+    }
+
+    async function checkTicketStatus() {
+      const ref = document.getElementById('verify-input').value.trim();
+      const resp = await fetch('http://localhost:8080/api/verify-ticket?ref=' + encodeURIComponent(ref));
+      const data = await resp.json();
+      const resDiv = document.getElementById('verify-result');
+      resDiv.classList.remove('hidden');
+
+      if (!data.found) {
+        resDiv.innerHTML = `<span style="color: red;">Ticket / Reference not found in database.</span>`;
+        return;
+      }
+
+      resDiv.innerHTML = `
+        <p><strong>Customer:</strong> ${data.customer_name}</p>
+        <p><strong>Session ID:</strong> <code>${data.session_id}</code></p>
+        <p><strong>Tickets:</strong> <code>${data.ticket_range}</code></p>
+        <p><strong>Payment Status:</strong> <span class="badge ${data.payment_status === 'SUCCESS' ? 'badge-success' : 'badge-danger'}">${data.payment_status}</span></p>
+        <p><strong>Status:</strong> Awaiting official random draw.</p>
+      `;
+    }
+
+    async function loadAdminStatus() {
+      const resp = await fetch('http://localhost:8080/api/admin/status');
+      const data = await resp.json();
+      document.getElementById('adm-total').innerText = data.total_tickets;
+      document.getElementById('adm-sold').innerText = data.tickets_sold;
+      document.getElementById('adm-rem').innerText = data.remaining;
+      document.getElementById('adm-status').innerText = data.status + (data.locked ? ' (LOCKED)' : '');
+    }
+
+    async function adminCloseComp() {
+      await fetch('http://localhost:8080/api/admin/close-competition', { method: 'POST' });
+      alert('Competition entries closed.');
+      loadAdminStatus();
+    }
+
+    async function adminLockEntries() {
+      await fetch('http://localhost:8080/api/admin/lock-entries', { method: 'POST' });
+      alert('Entry list permanently locked. Immutable state enforced.');
+      loadAdminStatus();
+    }
+
+    async function adminRunDraw() {
+      const resp = await fetch('http://localhost:8080/api/admin/draw', { method: 'POST' });
+      const data = await resp.json();
+      const out = document.getElementById('draw-output');
+      out.classList.remove('hidden');
+      out.innerHTML = `
+        <h3>🎯 WINNING TICKET SELECTED: #${data.winning_ticket}</h3>
+        <p><strong>RNG Hash Reference:</strong> <code>${data.rng_reference}</code></p>
+        <p><strong>Timestamp:</strong> ${data.timestamp}</p>
+      `;
+    }
+
+    async function loadAuditLogs() {
+      const resp = await fetch('http://localhost:8080/api/regulator/audit-logs');
+      const logs = await resp.json();
+      const tbody = document.getElementById('audit-table-body');
+      tbody.innerHTML = '';
+      logs.forEach(l => {
+        tbody.innerHTML += `<tr><td>${l.time}</td><td>${l.desc}</td></tr>`;
+      });
+    }
+  </script>
+</body>
+</html>

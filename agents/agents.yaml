@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: "go"
+    image: "633050264585.dkr.ecr.eu-west-2.amazonaws.com/agent-go:latest"
+    imagePullPolicy: "Always"
+    command:
+    - cat
+    tty: true
+  - name: semver-tools
+    image: "633050264585.dkr.ecr.eu-west-2.amazonaws.com/semver-tools:3.3.4"
+    command:
+    - cat
+    tty: true
+  - name: "lint"
+    image: "633050264585.dkr.ecr.eu-west-2.amazonaws.com/agent-lint:latest"
+    imagePullPolicy: "Always"
+    command:
+    - cat
+    tty: true
+  - name: "build"
+    image: "633050264585.dkr.ecr.eu-west-2.amazonaws.com/agent-build:latest"
+    imagePullPolicy: "Always"
+    command:
+    - cat
+    tty: true
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command:
+    - sleep
+    args:
+    - 9999999
+  serviceAccount: 
